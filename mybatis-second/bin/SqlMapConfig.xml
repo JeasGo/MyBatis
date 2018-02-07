@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<!-- 单个别名定义 -->
+		<typeAlias alias="user" type="cn.jeas.mybatis.pojo.User" />
+		<!-- <typeAlias alias="orders" type="cn.jeas.mybatis.pojo.Orders"/> -->
+		<!-- 批量别名定义，扫描整个包下的类，别名为类名（大小写不敏感） -->
+		<package name="cn.jeas.mybatis.pojo" />
+		<package name="其它包" />
+	</typeAliases>
+	
+
+	<!-- 和spring整合后 environments配置将废除 -->
+	<environments default="development">
+		<environment id="development">
+			<!-- 使用jdbc事务管理 -->
+			<transactionManager type="JDBC" />
+			<!-- 数据库连接池 -->
+			<dataSource type="POOLED">
+				<property name="driver" value="com.mysql.jdbc.Driver" />
+				<property name="url"
+					value="jdbc:mysql://localhost:3306/mybatis?characterEncoding=utf-8" />
+				<property name="username" value="root" />
+				<property name="password" value="513219" />
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<mappers>
+		<package name="cn.jeas.mybatis.mapper" />
+	</mappers>
+	
+</configuration>

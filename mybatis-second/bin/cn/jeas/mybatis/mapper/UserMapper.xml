@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.jeas.mybatis.mapper.UserMapper">
+	<select id="queryUserById" parameterType="int" resultType="cn.jeas.mybatis.pojo.User">
+		select * from user where id = #{id}
+	</select>
+	
+	<select id="queryUserByUsername" parameterType="string"
+		resultType="cn.jeas.mybatis.pojo.User">
+		select * from user where username like '%${value}%'
+	</select>
+	
+	<insert id="saveUser" parameterType="cn.jeas.mybatis.pojo.User">
+		<selectKey keyProperty="id" keyColumn="id" order="AFTER"
+			resultType="int">
+			select last_insert_id()
+		</selectKey>
+		insert into user(username,birthday,sex,address) values
+		(#{username},#{birthday},#{sex},#{address});
+	</insert>
+	
+	<select id="queryUserByQueryVo" parameterType="queryVo" resultType="user">
+		SELECT * FROM user WHERE username LIKE '%${user.username}%'
+	</select>
+	<select id="queryUserCount" resultType="int">
+		SELECT count(*) FROM `user`
+	</select>
+	
+	<select id="queryUserByWhere" parameterType="user" resultType="user">
+		SELECT <include refid="userFields" /> FROM `user`
+		<!-- where标签可以自动添加where关键字，同时处理sql语句中第一个and关键字 -->
+		<where>
+			<if test="sex != null">
+				AND sex = #{sex}
+			</if>
+			<if test="username != null and username != ''">
+				AND username LIKE
+				'%${username}%'
+			</if>
+	</where>
+
+	</select>
+	<sql id="userFields">
+		id, username, birthday, sex, address
+	</sql>
+	
+<!-- 	<select id="queryUserByWhere" parameterType="user" resultType="user">
+	SELECT id, username, birthday, sex, address FROM `user`
+	<where>
+		<if test="sex != null and sex != '' ">
+			AND sex = #{sex}
+		</if>
+		<if test="username != null and username != ''">
+			AND username LIKE
+			'%${username}%'
+		</if>
+	</where>
+	</select> -->
+	
+	<select id="queryUserByIds" parameterType="queryVo" resultType="user">
+		SELECT * FROM `user`
+		<where>
+			<foreach  collection="ids" item="item" open="id IN (" close=")" separator=",">
+				#{item}
+			</foreach>
+		</where>	
+	</select>
+	
+	
+	
+	<resultMap type="orders" id="orderUserResultMap">
+		<id property="id" column="id" />
+		<result property="userId" column="user_id" />
+		<result property="number" column="number" />
+		<result property="createtime" column="createtime" />
+		<result property="note" column="note" />
+	
+		<!-- association ：配置一对一属性 -->
+		<!-- property:order里面的User属性名 -->
+		<!-- javaType:属性类型 -->
+		<association property="user" javaType="user">
+			<!-- id:声明主键，表示user_id是关联查询对象的唯一标识-->
+			<id property="id" column="user_id" />
+			<result property="username" column="username" />
+			<result property="address" column="address" />
+		</association>
+	</resultMap>
+	<select id="queryOrderUserResultMap" resultMap="orderUserResultMap">
+		SELECT
+		o.id,
+		o.user_id,
+		o.number,
+		o.createtime,
+		o.note,
+		u.username,
+		u.address
+		FROM
+		`orders` o
+		LEFT JOIN `user` u ON o.user_id = u.id
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>
