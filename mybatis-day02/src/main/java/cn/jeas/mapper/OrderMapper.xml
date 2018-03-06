@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="cn.jeas.mapper.OrderMapper">
+  
+  <sql id="userColumns">
+  	id,user_name,password,name,age,sex,birthday,created,updated
+  </sql>
+
+	<resultMap type="Order" id="OrderUserResult" autoMapping="true">
+		<id column="id" property="id" javaType="java.lang.Integer"/>
+		<association property="user" javaType="User" autoMapping="true">
+			<id column="user_id" property="id"/>
+		</association>
+	</resultMap>
+	
+	<resultMap type="Order" id="orderAndUserAndOrderDetailResult" extends="OrderUserResult" autoMapping="true">
+		<collection property="orderDetails" ofType="Orderdetail" autoMapping="true">
+			<id column="detail_id" property="id"/>
+		</collection>
+	</resultMap>
+	
+	<select id="queryOrderWithUserAndOrderDetailsByOrderNumber" resultMap="orderAndUserAndOrderDetailResult">
+		select o.* ,u.*,od.*
+		from tb_order o 
+		left join tb_user u on o.user_id = u.id
+		left join tb_orderdetail od On o.id = od.order_id
+		where o.order_number = #{orderNumber}
+	</select>
+	
+	<select id="queryOrderWithUserByorderNumber" resultMap="OrderUserResult">
+		select o.*,u.*
+		from tb_order o
+		left join tb_user u on o.user_id = u.id
+		where o.order_number = #{orderNumber}
+	</select>
+	
+	
+	
+</mapper>

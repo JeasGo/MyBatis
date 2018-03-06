@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="cn.jeas.mapper.UserMapper">
+  
+  <sql id="userColumns">
+  	id,user_name,password,name,age,sex,birthday,created,updated
+  </sql>
+
+	<resultMap type="Order" id="OrderUserResult" autoMapping="true">
+		<id column="id" property="id"/>
+		
+		<association property="user" javaType="User" autoMapping="true">
+			<id column="user_id" property="id"/>
+		</association>
+	</resultMap>
+	
+	
+	<select id="queryOrderWithUserByorderNumber">
+		select o.*,u.<include refid="userColumns"/>
+		from tb_order o 
+		left join tb_user on o.user_id = u.id
+		where o.order_number = #{orderNumber}
+		
+	</select>
+	
+
+
+	<resultMap type="User" id="userMap" autoMapping="true">
+		<id column="id" property="id"/>
+		<result column="user_name" property="userName"/>
+	</resultMap>
+
+	<select id="queryAllUserAndSort" resultType="User">
+		select <include refid="userColumns"/> from tb_user
+		<choose>
+			<when test="orderType == 0">
+				order by age asc
+			</when>
+			<when test="orderType == 1">
+				order by age desc
+			</when>
+			
+			<otherwise>
+				order by id asc
+			</otherwise>
+		</choose>
+		
+		
+		
+		
+		<!-- <if test="orderType == 0">
+			order by age asc
+		</if>
+		<if test="orderType ==1">
+			order by age desc
+		</if>
+		<if test="orderType != 0 and orderType != 1">
+			order by id asc
+		</if> -->
+		
+		
+		
+	</select>
+
+
+	<select id="queryMaleUserByName" resultType="User">
+		select <include refid="userColumns"/> from tb_user where sex=1
+		<if test="name != null and name.trim() != '' ">
+			and name like "%${name}%"
+		</if>
+	</select>
+	
+	
+	
+
+
+	  <select id="queryUserByUsernameAndPaaword" resultMap="userMap">
+  		select <include refid="userColumns"/> from tb_user where user_name = #{username} and password = #{password}  
+ 	 </select>
+	 
+  <select id="queryUserLikeName" resultMap="userMap">
+  	select * from tb_user where user_name like   '${value}'
+  </select>
+  
+  
+  <select id="login" resultType="User">
+  	select* from  tb_user  where user_name = '${username}' and password = '${password}'
+  </select>
+  
+  
+  
+  
+  
+  <select id="queryUserById" parameterType="java.lang.Long" resultType="User">
+  	SELECT * FROM tb_user WHERE id = #{id}
+  </select>
+   <select id="queryAll" resultType="User">
+		SELECT * FROM tb_user
+	</select>
+	
+	<insert id="insertUser" parameterType="User" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		<!-- 注意，这里用#{字段名}，mybatis会自动根据字段名，去User参数中找字段值，设置到Sql中 -->
+		INSERT INTO tb_user (
+			id,
+			user_name,
+			password,
+			name,
+			age,
+			sex,
+			birthday,
+			created,
+			updated
+		)
+		VALUES
+			(
+				NULL,
+				#{userName},
+				#{password},
+				#{name},
+				#{age},
+				#{sex},
+				#{birthday},
+				NOW(),
+				NOW()
+			);
+	</insert>
+	<update id="updateUser" parameterType="User">
+		UPDATE tb_user
+		SET 
+			user_name = #{userName},
+			password = #{password},
+			name = #{name},
+			age = #{age},
+			sex = #{sex},
+			birthday = #{birthday},
+			updated = NOW()
+		WHERE
+			id = #{id};
+	</update>
+	
+	<!-- 删除用户 -->
+	<delete id="deleteUserById" parameterType="java.lang.Long">
+		DELETE FROM tb_user WHERE id = #{id}
+	</delete>
+	
+
+  </mapper>
